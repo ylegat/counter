@@ -4,18 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import counter.CallRecord;
-import counter.CreditRecord;
 import counter.Stock;
 
 class JavaStock implements Stock {
-    private static final long STANDARD_BOOKING = 10;
-
     private AtomicLong stock = new AtomicLong();
 
-    private List<CallRecord> callRecords = Collections.synchronizedList(new ArrayList<>());
+    private List<JavaCallRecord> callRecords = Collections.synchronizedList(new ArrayList<>());
 
-    private List<CreditRecord> creditRecords = Collections.synchronizedList(new ArrayList<>());
+    private List<JavaCreditRecord> creditRecords = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public long reserveCredits(String account) throws StoreEmptyException {
@@ -37,8 +33,8 @@ class JavaStock implements Stock {
     }
 
     @Override
-    public CreditRecord credit(String account, long amountToProvision) {
-        CreditRecord creditRecord = new JavaCreditRecord(account, amountToProvision);
+    public JavaCreditRecord credit(String account, long amountToProvision) {
+        JavaCreditRecord creditRecord = new JavaCreditRecord(account, amountToProvision);
         creditRecords.add(creditRecord);
         this.stock.addAndGet(amountToProvision);
         System.out.println(creditRecord);
@@ -52,8 +48,8 @@ class JavaStock implements Stock {
     }
 
     @Override
-    public CallRecord recordCall(String account, String caller, long amountConsumed) {
-        CallRecord callRecord = new JavaCallRecord(account, caller, amountConsumed);
+    public JavaCallRecord recordCall(String account, String caller, long amountConsumed) {
+        JavaCallRecord callRecord = new JavaCallRecord(account, caller, amountConsumed);
         callRecords.add(callRecord);
         System.out.println(callRecord);
         return callRecord;
@@ -65,8 +61,8 @@ class JavaStock implements Stock {
     }
 
     @Override
-    public List<CallRecord> getCallRecords(String account) {
-        List<CallRecord> bills = new ArrayList<>();
+    public List<JavaCallRecord> getCallRecords(String account) {
+        List<JavaCallRecord> bills = new ArrayList<>();
         synchronized (this.callRecords) {
             bills.addAll(this.callRecords);
         }
@@ -74,8 +70,8 @@ class JavaStock implements Stock {
     }
 
     @Override
-    public List<CreditRecord> getCreditRecords(String account) {
-        List<CreditRecord> provisions = new ArrayList<>();
+    public List<JavaCreditRecord> getCreditRecords(String account) {
+        List<JavaCreditRecord> provisions = new ArrayList<>();
         synchronized (this.creditRecords) {
             provisions.addAll(this.creditRecords);
         }

@@ -2,6 +2,8 @@ package counter;
 
 public interface StockWriteOperations {
 
+    long STANDARD_BOOKING = 10;
+
     long reserveCredits(String account) throws StoreEmptyException;
 
     CreditRecord credit(String account, long amountToProvision);
