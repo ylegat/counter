@@ -6,7 +6,7 @@ public interface StockReadOperations {
 
     long getRemainingCredits(String account);
 
-    List<CallRecord> getCallRecords(String account);
+    List<? extends CallRecord> getCallRecords(String account);
 
-    List<CreditRecord> getCreditRecords(String account);
+    List<? extends CreditRecord> getCreditRecords(String account);
 }

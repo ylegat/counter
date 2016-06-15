@@ -63,10 +63,15 @@ public abstract class StockTest {
         creditProvisioner.interrupt();
         consumers.stream().forEach(Caller::interrupt);
 
-        List<CreditRecord> creditRecords = stockRead.getCreditRecords(ACCOUNT);
+        creditProvisioner.join();
+        for(Caller consumer : consumers) {
+            consumer.join();
+        }
+
+        List<? extends CreditRecord> creditRecords = stockRead.getCreditRecords(ACCOUNT);
         System.out.println("creditRecords : " + creditRecords);
 
-        List<CallRecord> callRecords = stockRead.getCallRecords(ACCOUNT);
+        List<? extends CallRecord> callRecords = stockRead.getCallRecords(ACCOUNT);
         System.out.println("callRecords : " + callRecords);
 
         long totalProvisioned = creditRecords.stream().mapToLong(creditRecord -> creditRecord.getProvisionedCredits()).sum();
