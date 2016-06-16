@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static counter.event.CallEndedEvent.CALL_ENDED_EVENT;
 import static counter.event.CreatedAccountEvent.CREATED_ACCOUNT_EVENT;
@@ -12,9 +13,9 @@ import static counter.event.ReservedCreditEvent.RESERVED_CREDIT_EVENT;
 
 public class UserAccount {
 
-    public static UserAccount createUserAccount() {
+    public static UserAccount createUserAccount(Consumer<Event> eventConsumer) {
         UserAccount userAccount = new UserAccount();
-        userAccount.applyEvent(new CreatedAccountEvent(UUID.randomUUID().toString()));
+        eventConsumer.accept(userAccount.applyEvent(new CreatedAccountEvent(UUID.randomUUID().toString())));
         return userAccount;
     }
 
@@ -31,24 +32,24 @@ public class UserAccount {
         reservedCredits = new HashMap<>();
     }
 
-    public ProvisionedCreditEvent provisionCredit(long provisionedCredit) {
-        return applyEvent(new ProvisionedCreditEvent(account, provisionedCredit, nextVersion()));
+    public void provisionCredit(long provisionedCredit, Consumer<Event> eventConsumer) {
+        eventConsumer.accept(applyEvent(new ProvisionedCreditEvent(account, provisionedCredit, nextVersion())));
     }
 
-    public ReservedCreditEvent reserveCredit(String callId, long reservedCredit) {
+    public void reserveCredit(String callId, long reservedCredit, Consumer<Event> eventConsumer) {
         if (credit < reservedCredit) {
             throw new IllegalArgumentException("Not enough credit for a reservation of " + reservedCredit);
         }
 
-        return applyEvent(new ReservedCreditEvent(account, callId, reservedCredit, nextVersion()));
+        eventConsumer.accept(applyEvent(new ReservedCreditEvent(account, callId, reservedCredit, nextVersion())));
     }
 
-    public CallEndedEvent endCall(String callId, String caller, long consumedCredit) {
+    public void endCall(String callId, String caller, long consumedCredit, Consumer<Event> eventConsumer) {
         if (reservedCredits.get(callId) < consumedCredit) {
             throw new IllegalArgumentException("consumed credit is greater than reserved credit");
         }
 
-        return applyEvent(new CallEndedEvent(account, callId, caller, consumedCredit, nextVersion()));
+        eventConsumer.accept(applyEvent(new CallEndedEvent(account, callId, caller, consumedCredit, nextVersion())));
     }
 
     public void applyEvents(List<Event> events) {
