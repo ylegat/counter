@@ -10,12 +10,14 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
+
         <!-- Tests -->
         <junit.version>4.12</junit.version>
         <assertj.version>3.4.1</assertj.version>
-        
-        <achilles.version>4.2.0</achilles.version>
+        <derbyclient.version>10.9.1.0</derbyclient.version>
+        <guava.version>19.0</guava.version>
+        <gson.version>2.2.4</gson.version>
+        <uncheck.version>1.0</uncheck.version>
     </properties>
 
     <dependencies>
@@ -34,29 +36,39 @@
         </dependency>
 
         <dependency>
-            <groupId>info.archinnov</groupId>
-            <artifactId>achilles-core</artifactId>
-            <version>${achilles.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>info.archinnov</groupId>
-            <artifactId>achilles-junit</artifactId>
-            <version>${achilles.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.1.7</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.github.ylegat</groupId>
             <artifactId>uncheck</artifactId>
-            <version>1.0</version>
+            <version>${uncheck.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derbyclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>${derbyclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.192</version>
         </dependency>
 
     </dependencies>
