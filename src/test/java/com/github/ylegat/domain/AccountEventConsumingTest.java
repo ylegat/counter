@@ -21,7 +21,7 @@ public class AccountEventConsumingTest {
         LinkedList<Event> events = account.consumeEvents(new LinkedList<>());
 
         // Then
-        Assertions.assertThat(events).extracting(Event::eventType, Event::version)
+        Assertions.assertThat(events).extracting(e -> e.eventType, e -> e.version)
                   .containsExactly(tuple(CreatedAccountEvent.CREATED_ACCOUNT_EVENT, 1L),
                                            tuple(ProvisionedCreditEvent.PROVISIONED_CREDIT_EVENT, 2L));
     }

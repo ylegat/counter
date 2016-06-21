@@ -70,7 +70,7 @@ public class Account {
 
     public void terminateCall(String callId, long consumedCredit) {
         Long reservedCredit = reservedCredits.get(callId);
-        checkArgument(reservedCredit != null, format("CallId %s unknown for user.", callId));
+        checkArgument(reservedCredit != null, format("Call-id %s unknown for user.", callId));
         checkArgument(reservedCredit >= consumedCredit,
                       format("Consumed credit (%s) is greater than reserved credit (%s)", consumedCredit, reservedCredit));
 
@@ -83,6 +83,8 @@ public class Account {
     }
 
     private <T extends Event> T applyEvent(T event) {
+        checkArgument(event.version == version + 1);
+
         switch (event.eventType) {
             case CreatedAccountEvent.CREATED_ACCOUNT_EVENT:
                 CreatedAccountEvent createdAccountEvent = (CreatedAccountEvent) event;

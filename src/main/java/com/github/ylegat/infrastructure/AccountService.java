@@ -43,6 +43,7 @@ public class AccountService {
         while (true) {
             try {
                 tryTerminateCall(accountId, callId, consumedCredit);
+                return;
             } catch (UnmergeableEventException e) {
             }
         }

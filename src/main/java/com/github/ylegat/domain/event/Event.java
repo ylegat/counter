@@ -16,18 +16,6 @@ public abstract class Event {
         this.version = version;
     }
 
-    public String aggregateId() {
-        return aggregateId;
-    }
-
-    public String eventType() {
-        return eventType;
-    }
-
-    public long version() {
-        return version;
-    }
-
     public abstract Event updateVersion(int incVersion);
 
     @Override
