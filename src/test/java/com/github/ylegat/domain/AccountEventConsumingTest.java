@@ -1,15 +1,13 @@
 package com.github.ylegat.domain;
 
+import static org.assertj.core.groups.Tuple.tuple;
+import static com.github.ylegat.domain.Account.createNewAccount;
+import java.util.LinkedList;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
 import com.github.ylegat.domain.event.CreatedAccountEvent;
 import com.github.ylegat.domain.event.Event;
 import com.github.ylegat.domain.event.ProvisionedCreditEvent;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
-import java.util.LinkedList;
-
-import static com.github.ylegat.domain.Account.createNewAccount;
-import static org.assertj.core.groups.Tuple.tuple;
 
 public class AccountEventConsumingTest {
 

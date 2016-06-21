@@ -1,15 +1,13 @@
 package com.github.ylegat.domain;
 
-import com.github.ylegat.domain.event.CreatedAccountEvent;
-import com.github.ylegat.domain.event.Event;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static com.github.ylegat.domain.Account.createNewAccount;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.github.ylegat.domain.Account.createNewAccount;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import com.github.ylegat.domain.event.CreatedAccountEvent;
+import com.github.ylegat.domain.event.Event;
 
 public class CreateNewAccountTest {
 

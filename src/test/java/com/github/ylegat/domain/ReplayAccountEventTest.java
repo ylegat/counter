@@ -1,12 +1,10 @@
 package com.github.ylegat.domain;
 
-import org.junit.Test;
-
-import java.util.LinkedList;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.domain.Account.loadAccount;
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.LinkedList;
+import org.junit.Test;
 
 public class ReplayAccountEventTest {
 

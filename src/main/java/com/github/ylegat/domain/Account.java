@@ -1,12 +1,21 @@
 package com.github.ylegat.domain;
 
-import com.github.ylegat.domain.event.*;
-
-import java.util.*;
-import java.util.function.Consumer;
-
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkArgument;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.UUID;
+import java.util.function.Consumer;
+import com.github.ylegat.domain.event.CreatedAccountEvent;
+import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.event.ProvisionedCreditEvent;
+import com.github.ylegat.domain.event.ReservedCreditEvent;
+import com.github.ylegat.domain.event.TerminatedCallEvent;
 
 public class Account {
 
@@ -46,21 +55,26 @@ public class Account {
         eventsToProcess.offer(applyEvent(event));
     }
 
-    public void reserveCredit(String callId, long reservedCredit) {
-        checkArgument(credit >= reservedCredit,
-                      format("Not enough credit (%s) for a reservation of %s.", credit, reservedCredit));
+    public boolean reserveCredit(String callId, long reservedCredit) {
+        checkArgument(reservedCredit > 0,
+                      format("Reservered credit (%s) should be geater than 0.", reservedCredit));
+
+        if (reservedCredit > credit) {
+            return false;
+        }
 
         ReservedCreditEvent event = new ReservedCreditEvent(accountId, callId, reservedCredit, nextVersion());
         eventsToProcess.offer(applyEvent(event));
+        return true;
     }
 
-    public void terminateCall(String callId, String caller, long consumedCredit) {
+    public void terminateCall(String callId, long consumedCredit) {
         Long reservedCredit = reservedCredits.get(callId);
         checkArgument(reservedCredit != null, format("CallId %s unknown for user.", callId));
         checkArgument(reservedCredit >= consumedCredit,
                       format("Consumed credit (%s) is greater than reserved credit (%s)", consumedCredit, reservedCredit));
 
-        TerminatedCallEvent event = new TerminatedCallEvent(accountId, callId, caller, consumedCredit, nextVersion());
+        TerminatedCallEvent event = new TerminatedCallEvent(accountId, callId, consumedCredit, nextVersion());
         eventsToProcess.offer(applyEvent(event));
     }
 
@@ -105,7 +119,11 @@ public class Account {
         }
     }
 
-    public <T extends Collection<Event>> T consumeEvents(T events) {
+    public List<Event> consumeEvents() {
+        return consumeEvents(new ArrayList<>(eventsToProcess.size()));
+    }
+
+    public <T extends List<Event>> T consumeEvents(T events) {
         consumeEvents((Consumer<Event>) events::add);
         return events;
     }
@@ -134,15 +152,15 @@ public class Account {
         return accountId;
     }
 
-    public long getCredit() {
+    long getCredit() {
         return credit;
     }
 
-    public long getVersion() {
+    long getVersion() {
         return version;
     }
 
-    public long reservedCredit(String callId) {
+    long reservedCredit(String callId) {
         Long reservedCredit = reservedCredits.get(callId);
         return (reservedCredit == null) ? 0L : reservedCredit;
     }

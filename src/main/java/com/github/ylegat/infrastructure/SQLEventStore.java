@@ -1,16 +1,18 @@
 package com.github.ylegat.infrastructure;
 
-import com.github.ylegat.EventSerializer;
-import com.github.ylegat.domain.EventStore;
-import com.github.ylegat.domain.event.Event;
-
-import java.sql.*;
+import static java.util.Collections.emptySet;
+import static com.github.ylegat.uncheck.Uncheck.uncheck;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import static com.github.ylegat.uncheck.Uncheck.uncheck;
-import static java.util.Collections.emptySet;
+import com.github.ylegat.EventSerializer;
+import com.github.ylegat.domain.EventStore;
+import com.github.ylegat.domain.event.Event;
 
 public class SQLEventStore extends EventStore {
 
@@ -58,7 +60,6 @@ public class SQLEventStore extends EventStore {
             statement.execute();
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
             return false;
         }
     }

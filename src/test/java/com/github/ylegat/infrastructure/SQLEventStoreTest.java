@@ -1,14 +1,14 @@
 package com.github.ylegat.infrastructure;
 
-import com.github.ylegat.EventSerializer;
-import com.github.ylegat.domain.event.Event;
-import org.junit.Test;
-
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Set;
-
-import static java.util.Collections.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+import com.github.ylegat.EventSerializer;
+import com.github.ylegat.domain.event.Event;
 
 public class SQLEventStoreTest {
 

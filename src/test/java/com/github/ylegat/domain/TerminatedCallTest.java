@@ -1,16 +1,14 @@
 package com.github.ylegat.domain;
 
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.TerminatedCallEvent;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
-import java.util.LinkedList;
-import java.util.function.Consumer;
-
-import static com.github.ylegat.domain.Account.createNewAccount;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static com.github.ylegat.domain.Account.createNewAccount;
+import java.util.LinkedList;
+import java.util.function.Consumer;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.event.TerminatedCallEvent;
 
 public class TerminatedCallTest {
 
@@ -22,7 +20,7 @@ public class TerminatedCallTest {
         Account account = createNewAccount();
 
         // When
-        Throwable throwable = catchThrowable(() -> account.terminateCall("callId", "caller", 1L));
+        Throwable throwable = catchThrowable(() -> account.terminateCall("callId", 1L));
 
         // Then
         assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
@@ -36,7 +34,7 @@ public class TerminatedCallTest {
         account.reserveCredit("callId", 2L);
 
         // When
-        account.terminateCall("callId", "caller", 1L);
+        account.terminateCall("callId", 1L);
 
         // Then
         assertThat(account.getCredit()).isEqualTo(1L);
@@ -52,13 +50,14 @@ public class TerminatedCallTest {
         account.consumeEvents(ignoreEvents);
 
         // When
-        account.terminateCall("callId", "caller", 1L);
+        account.terminateCall("callId", 1L);
         LinkedList<Event> events = account.consumeEvents(new LinkedList<>());
 
         // Then
         Assertions.assertThat(events).hasSize(1);
         Event event = events.get(0);
-        TerminatedCallEvent expectedEvent = new TerminatedCallEvent(account.getAccountId(), "callId", "caller", 1L, account.getVersion());
+        TerminatedCallEvent expectedEvent = new TerminatedCallEvent(account.getAccountId(), "callId",
+                                                                    1L, account.getVersion());
         assertThat(event).isEqualTo(expectedEvent);
     }
 

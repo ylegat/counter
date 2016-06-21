@@ -1,12 +1,10 @@
 package com.github.ylegat;
 
-import com.github.ylegat.domain.event.Event;
-import com.google.gson.Gson;
-
+import static com.github.ylegat.uncheck.Uncheck.uncheck;
 import java.util.Map;
 import java.util.Properties;
-
-import static com.github.ylegat.uncheck.Uncheck.uncheck;
+import com.github.ylegat.domain.event.Event;
+import com.google.gson.Gson;
 
 public class EventSerializer {
 

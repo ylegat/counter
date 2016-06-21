@@ -1,16 +1,13 @@
 package com.github.ylegat.domain;
 
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.ReservedCreditEvent;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static com.github.ylegat.domain.Account.createNewAccount;
 import java.util.LinkedList;
 import java.util.function.Consumer;
-
-import static com.github.ylegat.domain.Account.createNewAccount;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import org.assertj.core.api.Assertions;
+import org.junit.Test;
+import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.event.ReservedCreditEvent;
 
 public class CreditReservationTest {
 
@@ -22,10 +19,10 @@ public class CreditReservationTest {
         Account account = createNewAccount();
 
         // When
-        Throwable throwable = catchThrowable(() -> account.reserveCredit("callId", 1L));
+        boolean result = account.reserveCredit("callId", 1L);
 
         // Then
-        assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
+        assertThat(result).isFalse();
     }
 
     @Test
