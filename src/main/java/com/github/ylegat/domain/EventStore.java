@@ -15,8 +15,7 @@ public abstract class EventStore {
 
     protected abstract boolean save(Event event);
 
-    public boolean save(String aggregateId, List<Event> events) {
-        start();
+    public void save(String aggregateId, List<Event> events) throws UnmergeableEventException {
         for (Event event : events) {
             if (save(event)) {
                 continue;
@@ -26,17 +25,16 @@ public abstract class EventStore {
             List<Event> missedEvents = get(aggregateId, events.get(0).version);
             if (!isMergeable(events, missedEvents)) {
                 System.out.println("not mergeable");
-                return false;
+                throw new UnmergeableEventException();
             }
 
             System.out.println("merging");
-            return save(aggregateId, events.stream()
-                                           .map(e -> e.updateVersion(missedEvents.size()))
-                                           .collect(toList()));
+            save(aggregateId, events.stream()
+                                    .map(e -> e.updateVersion(missedEvents.size()))
+                                    .collect(toList()));
         }
 
         commit();
-        return true;
     }
 
     public List<Event> get(String aggregateId) {
@@ -44,8 +42,6 @@ public abstract class EventStore {
     }
 
     public abstract List<Event> get(String aggregateId, long fromVersion);
-
-    protected abstract void start();
 
     protected abstract boolean commit();
 

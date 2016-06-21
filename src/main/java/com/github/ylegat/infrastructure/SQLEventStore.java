@@ -87,11 +87,6 @@ public class SQLEventStore extends EventStore {
     }
 
     @Override
-    protected void start() {
-        System.out.println("start");
-    }
-
-    @Override
     protected boolean commit() {
         System.out.println("commit");
         try {

@@ -2,7 +2,7 @@ package com.github.ylegat.domain;
 
 public interface AccountRepository {
 
-    boolean save(Account account);
+    void save(Account account) throws UnmergeableEventException;
 
     Account get(String accountId);
 
