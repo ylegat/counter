@@ -1,5 +1,6 @@
 package com.github.ylegat.infrastructure;
 
+import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
 import com.github.ylegat.domain.Account;
 import com.github.ylegat.domain.AccountRepository;
@@ -9,7 +10,21 @@ public class AccountService {
 
     private AccountRepository accountRepository;
 
-    public void addCredit(String accountId, long credit) {
+    public AccountService(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    public Account getAccount(String accountId) {
+        return accountRepository.get(accountId);
+    }
+
+    public Account createAccount() {
+        Account account = createNewAccount();
+        uncheck(() -> accountRepository.save(account));
+        return account;
+    }
+
+    public void provisionCredit(String accountId, long credit) {
         Account account = accountRepository.get(accountId);
         account.provisionCredit(credit);
         uncheck(() -> accountRepository.save(account));
@@ -19,6 +34,15 @@ public class AccountService {
         while (true) {
             try {
                 return tryReserveCredit(accountId, callId, credit);
+            } catch (UnmergeableEventException e) {
+            }
+        }
+    }
+
+    public void terminateCall(String accountId, String callId, long consumedCredit) {
+        while (true) {
+            try {
+                tryTerminateCall(accountId, callId, consumedCredit);
             } catch (UnmergeableEventException e) {
             }
         }
@@ -34,9 +58,9 @@ public class AccountService {
         return true;
     }
 
-    public void terminateCall(String accountId, String callId, long consumedCredit) {
+    private void tryTerminateCall(String accountId, String callId, long consumedCredit) throws UnmergeableEventException {
         Account account = accountRepository.get(accountId);
         account.terminateCall(callId, consumedCredit);
-        uncheck(() -> accountRepository.save(account));
+        accountRepository.save(account);
     }
 }

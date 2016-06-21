@@ -152,7 +152,7 @@ public class Account {
         return accountId;
     }
 
-    long getCredit() {
+    public long getCredit() {
         return credit;
     }
 
