@@ -1,4 +1,4 @@
-package com.github.ylegat.domain.event;
+package com.github.ylegat.domain;
 
 import java.util.Objects;
 
@@ -41,4 +41,6 @@ public abstract class Event {
                 ", version=" + version +
                 '}';
     }
+
+    public abstract <T extends Event> T applyTo(Account account);
 }

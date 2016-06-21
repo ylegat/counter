@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import com.github.ylegat.EventSerializer;
 import com.github.ylegat.domain.EventStore;
-import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.Event;
 
 public class SQLEventStore extends EventStore {
 

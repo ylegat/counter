@@ -3,7 +3,6 @@ package com.github.ylegat.domain;
 import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Set;
-import com.github.ylegat.domain.event.Event;
 
 public abstract class EventStore {
 

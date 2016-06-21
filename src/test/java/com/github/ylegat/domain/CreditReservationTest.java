@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.ReservedCreditEvent;
 
 public class CreditReservationTest {
 
@@ -53,7 +51,7 @@ public class CreditReservationTest {
         // Then
         Assertions.assertThat(events).hasSize(1);
         Event event = events.get(0);
-        ReservedCreditEvent expectedEvent = new ReservedCreditEvent(account.getAccountId(), "callId", 1L, account.getVersion());
+        ReservedCreditEvent expectedEvent = new ReservedCreditEvent(account.getAccountId(), "callId", 1L, account.version());
         assertThat(event).isEqualTo(expectedEvent);
     }
 

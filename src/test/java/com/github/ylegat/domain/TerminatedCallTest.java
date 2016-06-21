@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.TerminatedCallEvent;
 
 public class TerminatedCallTest {
 
@@ -57,7 +55,7 @@ public class TerminatedCallTest {
         Assertions.assertThat(events).hasSize(1);
         Event event = events.get(0);
         TerminatedCallEvent expectedEvent = new TerminatedCallEvent(account.getAccountId(), "callId",
-                                                                    1L, account.getVersion());
+                                                                    1L, account.version());
         assertThat(event).isEqualTo(expectedEvent);
     }
 

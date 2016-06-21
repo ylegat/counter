@@ -1,4 +1,4 @@
-package com.github.ylegat.domain.event;
+package com.github.ylegat.domain;
 
 import java.util.Objects;
 
@@ -18,6 +18,12 @@ public class TerminatedCallEvent extends Event {
     @Override
     public TerminatedCallEvent updateVersion(int incVersion) {
         return new TerminatedCallEvent(aggregateId, callId, consumedCredit, version + incVersion);
+    }
+
+    @Override
+    public TerminatedCallEvent applyTo(Account account) {
+        account.applyTerminatedCallEvent(this);
+        return this;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.github.ylegat.domain.event;
+package com.github.ylegat.domain;
 
 public class CreatedAccountEvent extends Event {
 
@@ -13,4 +13,8 @@ public class CreatedAccountEvent extends Event {
         throw new UnsupportedOperationException("account creation should be the first event for an aggregate");
     }
 
+    @Override
+    public CreatedAccountEvent applyTo(Account account) {
+        return account.applyCreatedAccountEvent(this);
+    }
 }

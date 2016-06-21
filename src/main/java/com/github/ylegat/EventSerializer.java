@@ -2,7 +2,7 @@ package com.github.ylegat;
 
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
 import java.util.Map;
-import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.Event;
 import com.google.gson.Gson;
 
 public class EventSerializer {

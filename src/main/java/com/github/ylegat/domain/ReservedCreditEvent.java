@@ -1,4 +1,4 @@
-package com.github.ylegat.domain.event;
+package com.github.ylegat.domain;
 
 import java.util.Objects;
 
@@ -19,6 +19,11 @@ public class ReservedCreditEvent extends Event {
     @Override
     public ReservedCreditEvent updateVersion(int incVersion) {
         return new ReservedCreditEvent(aggregateId, callId, reservedCredit, version + incVersion);
+    }
+
+    @Override
+    public ReservedCreditEvent applyTo(Account account) {
+        return account.applyReservedCreditEvent(this);
     }
 
     @Override

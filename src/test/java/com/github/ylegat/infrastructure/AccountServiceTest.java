@@ -1,10 +1,10 @@
 package com.github.ylegat.infrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static com.github.ylegat.domain.event.CreatedAccountEvent.CREATED_ACCOUNT_EVENT;
-import static com.github.ylegat.domain.event.ProvisionedCreditEvent.PROVISIONED_CREDIT_EVENT;
-import static com.github.ylegat.domain.event.ReservedCreditEvent.RESERVED_CREDIT_EVENT;
-import static com.github.ylegat.domain.event.TerminatedCallEvent.TERMINATED_CALL_EVENT;
+import static com.github.ylegat.domain.CreatedAccountEvent.CREATED_ACCOUNT_EVENT;
+import static com.github.ylegat.domain.ProvisionedCreditEvent.PROVISIONED_CREDIT_EVENT;
+import static com.github.ylegat.domain.ReservedCreditEvent.RESERVED_CREDIT_EVENT;
+import static com.github.ylegat.domain.TerminatedCallEvent.TERMINATED_CALL_EVENT;
 import static com.google.common.collect.Sets.newHashSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,11 +13,11 @@ import com.github.ylegat.EventSerializer;
 import com.github.ylegat.domain.Account;
 import com.github.ylegat.domain.Accounts;
 import com.github.ylegat.domain.EventStore;
-import com.github.ylegat.domain.event.CreatedAccountEvent;
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.ProvisionedCreditEvent;
-import com.github.ylegat.domain.event.ReservedCreditEvent;
-import com.github.ylegat.domain.event.TerminatedCallEvent;
+import com.github.ylegat.domain.CreatedAccountEvent;
+import com.github.ylegat.domain.Event;
+import com.github.ylegat.domain.ProvisionedCreditEvent;
+import com.github.ylegat.domain.ReservedCreditEvent;
+import com.github.ylegat.domain.TerminatedCallEvent;
 import com.github.ylegat.domain.service.AccountService;
 
 public class AccountServiceTest {

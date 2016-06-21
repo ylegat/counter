@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.ProvisionedCreditEvent;
 
 public class CreditProvisioningTest {
 
@@ -39,7 +37,7 @@ public class CreditProvisioningTest {
         // Then
         Assertions.assertThat(events).hasSize(1);
         Event event = events.get(0);
-        ProvisionedCreditEvent expectedEvent = new ProvisionedCreditEvent(account.getAccountId(), 10L, account.getVersion());
+        ProvisionedCreditEvent expectedEvent = new ProvisionedCreditEvent(account.getAccountId(), 10L, account.version());
         assertThat(event).isEqualTo(expectedEvent);
     }
 

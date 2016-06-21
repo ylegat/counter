@@ -11,11 +11,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.github.ylegat.domain.Account;
 import org.junit.Ignore;
 import org.junit.Test;
 import com.github.ylegat.EventSerializer;
 import com.github.ylegat.domain.UnmergeableEventException;
-import com.github.ylegat.domain.event.Event;
+import com.github.ylegat.domain.Event;
 
 public class SQLEventStoreTest {
 
@@ -154,6 +156,11 @@ public class SQLEventStoreTest {
         @Override
         public DumbEvent updateVersion(int incVersion) {
             return new DumbEvent(version + incVersion);
+        }
+
+        @Override
+        public DumbEvent applyTo(Account account) {
+            throw new UnsupportedOperationException();
         }
     }
 

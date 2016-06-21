@@ -19,7 +19,7 @@ public class Accounts {
     }
 
     public void refresh(Account account) {
-        account.applyEvents(eventStore.get(account.getAccountId(), account.getVersion() + 1));
+        account.applyEvents(eventStore.get(account.getAccountId(), account.version() + 1));
     }
 
 }

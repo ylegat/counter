@@ -1,4 +1,4 @@
-package com.github.ylegat.domain.event;
+package com.github.ylegat.domain;
 
 public class ProvisionedCreditEvent extends Event {
 
@@ -14,6 +14,11 @@ public class ProvisionedCreditEvent extends Event {
     @Override
     public ProvisionedCreditEvent updateVersion(int incVersion) {
         return new ProvisionedCreditEvent(aggregateId, provisionedCredit, version + incVersion);
+    }
+
+    @Override
+    public ProvisionedCreditEvent applyTo(Account account) {
+        return account.applyProvisionedCreditEvent(this);
     }
 
     @Override

@@ -11,11 +11,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.function.Consumer;
-import com.github.ylegat.domain.event.CreatedAccountEvent;
-import com.github.ylegat.domain.event.Event;
-import com.github.ylegat.domain.event.ProvisionedCreditEvent;
-import com.github.ylegat.domain.event.ReservedCreditEvent;
-import com.github.ylegat.domain.event.TerminatedCallEvent;
 
 public class Account {
 
@@ -48,7 +43,7 @@ public class Account {
         eventsToProcess = new LinkedList<>();
     }
 
-    public Account(String accountId, Map<String, Long> reservedCredits, long credit, long version, Queue<Event> eventsToProcess) {
+    private Account(String accountId, Map<String, Long> reservedCredits, long credit, long version, Queue<Event> eventsToProcess) {
         this.accountId = accountId;
         this.reservedCredits = reservedCredits;
         this.credit = credit;
@@ -60,7 +55,7 @@ public class Account {
         checkArgument(provisionedCredit > 0,
                       format("Provisioned credit (%s) should be geater than 0.", provisionedCredit));
 
-        ProvisionedCreditEvent event = new ProvisionedCreditEvent(accountId, provisionedCredit, nextVersion());
+        ProvisionedCreditEvent event = new ProvisionedCreditEvent(accountId, provisionedCredit, version + 1);
         eventsToProcess.offer(applyEvent(event));
     }
 
@@ -72,7 +67,7 @@ public class Account {
             return false;
         }
 
-        ReservedCreditEvent event = new ReservedCreditEvent(accountId, callId, reservedCredit, nextVersion());
+        ReservedCreditEvent event = new ReservedCreditEvent(accountId, callId, reservedCredit, version + 1);
         eventsToProcess.offer(applyEvent(event));
         return true;
     }
@@ -83,44 +78,8 @@ public class Account {
         checkArgument(reservedCredit >= consumedCredit,
                       format("Consumed credit (%s) is greater than reserved credit (%s)", consumedCredit, reservedCredit));
 
-        TerminatedCallEvent event = new TerminatedCallEvent(accountId, callId, consumedCredit, nextVersion());
+        TerminatedCallEvent event = new TerminatedCallEvent(accountId, callId, consumedCredit, version + 1);
         eventsToProcess.offer(applyEvent(event));
-    }
-
-    public void applyEvents(List<Event> events) {
-        events.stream().forEach(this::applyEvent);
-    }
-
-    private <T extends Event> T applyEvent(T event) {
-        checkArgument(event.version == version + 1);
-
-        switch (event.eventType) {
-            case CreatedAccountEvent.CREATED_ACCOUNT_EVENT:
-                CreatedAccountEvent createdAccountEvent = (CreatedAccountEvent) event;
-                accountId = createdAccountEvent.aggregateId;
-                break;
-            case ProvisionedCreditEvent.PROVISIONED_CREDIT_EVENT:
-                ProvisionedCreditEvent provisionedCreditEvent = (ProvisionedCreditEvent) event;
-                credit += provisionedCreditEvent.provisionedCredit;
-                break;
-            case ReservedCreditEvent.RESERVED_CREDIT_EVENT:
-                ReservedCreditEvent reservedCreditEvent = (ReservedCreditEvent) event;
-                long newReservedCredit = reservedCreditEvent.reservedCredit;
-                reservedCredits.compute(reservedCreditEvent.callId, (key, reservedCredit) -> {
-                    return (reservedCredit == null) ? newReservedCredit : reservedCredit + newReservedCredit;
-                });
-                credit -= newReservedCredit;
-                break;
-            case TerminatedCallEvent.TERMINATED_CALL_EVENT:
-                TerminatedCallEvent terminatedCallEvent = (TerminatedCallEvent) event;
-                long consumedCredit = terminatedCallEvent.consumedCredit;
-                Long reservedCredit = reservedCredits.remove(terminatedCallEvent.callId);
-                credit += (reservedCredit - consumedCredit);
-                break;
-        }
-
-        version = event.version;
-        return event;
     }
 
     public void consumeEvents(Consumer<Event> eventConsumer) {
@@ -139,8 +98,16 @@ public class Account {
         return events;
     }
 
-    private long nextVersion() {
-        return version + 1;
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public long getCredit() {
+        return credit;
+    }
+
+    public Account copy() {
+        return new Account(accountId, new HashMap<>(reservedCredits), credit, version, new LinkedList<>(eventsToProcess));
     }
 
     @Override
@@ -159,15 +126,37 @@ public class Account {
         return Objects.hash(accountId);
     }
 
-    public String getAccountId() {
-        return accountId;
+    void applyEvents(List<Event> events) {
+        events.stream().forEach(this::applyEvent);
     }
 
-    public long getCredit() {
-        return credit;
+    ReservedCreditEvent applyReservedCreditEvent(ReservedCreditEvent event) {
+        return applyEvent(event, () -> {
+            long newReservedCredit = event.reservedCredit;
+            reservedCredits.compute(event.callId, (key, reservedCredit) -> {
+                return (reservedCredit == null) ? newReservedCredit : reservedCredit + newReservedCredit;
+            });
+            credit -= newReservedCredit;
+        });
     }
 
-    long getVersion() {
+    TerminatedCallEvent applyTerminatedCallEvent(TerminatedCallEvent event) {
+        return applyEvent(event, () -> {
+            long consumedCredit = event.consumedCredit;
+            Long reservedCredit = reservedCredits.remove(event.callId);
+            credit += (reservedCredit - consumedCredit);
+        });
+    }
+
+    CreatedAccountEvent applyCreatedAccountEvent(CreatedAccountEvent event) {
+        return applyEvent(event, () -> accountId = event.aggregateId);
+    }
+
+    ProvisionedCreditEvent applyProvisionedCreditEvent(ProvisionedCreditEvent event) {
+        return applyEvent(event, () -> credit += event.provisionedCredit);
+    }
+
+    long version() {
         return version;
     }
 
@@ -176,7 +165,14 @@ public class Account {
         return (reservedCredit == null) ? 0L : reservedCredit;
     }
 
-    public Account copy() {
-        return new Account(accountId, new HashMap<>(reservedCredits), credit, version, new LinkedList<>(eventsToProcess));
+    private <T extends Event> T applyEvent(T event, Runnable eventProcess) {
+        checkArgument(event.version == version + 1);
+        eventProcess.run();
+        version++;
+        return event;
+    }
+
+    private <T extends Event> T applyEvent(T event) {
+        return event.applyTo(this);
     }
 }
