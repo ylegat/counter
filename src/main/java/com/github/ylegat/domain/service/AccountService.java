@@ -1,7 +1,10 @@
-package com.github.ylegat.domain;
+package com.github.ylegat.domain.service;
 
 import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
+import com.github.ylegat.domain.Account;
+import com.github.ylegat.domain.Accounts;
+import com.github.ylegat.domain.UnmergeableEventException;
 
 public class AccountService {
 
@@ -28,15 +31,14 @@ public class AccountService {
     }
 
     public boolean reserveCredit(String accountId, String callId, long credit) {
-        return retryUntilMerged(() -> tryReserveCredit(accountId, callId, credit));
+        return retryUntilMerged(accountId, account -> tryReserveCredit(account, callId, credit));
     }
 
     public boolean terminateCall(String accountId, String callId, long consumedCredit) {
-        return retryUntilMerged(() -> tryTerminateCall(accountId, callId, consumedCredit));
+        return retryUntilMerged(accountId, account -> tryTerminateCall(account, callId, consumedCredit));
     }
 
-    private boolean tryReserveCredit(String accountId, String callId, long credit) throws UnmergeableEventException {
-        Account account = accounts.get(accountId);
+    private boolean tryReserveCredit(Account account, String callId, long credit) throws UnmergeableEventException {
         if (!account.reserveCredit(callId, credit)) {
             return false;
         }
@@ -45,25 +47,26 @@ public class AccountService {
         return true;
     }
 
-    private boolean tryTerminateCall(String accountId,
+    private boolean tryTerminateCall(Account account,
                                      String callId,
                                      long consumedCredit) throws UnmergeableEventException {
-        Account account = accounts.get(accountId);
         account.terminateCall(callId, consumedCredit);
         accounts.save(account);
         return true;
     }
 
-    private boolean     retryUntilMerged(MergeableProcess process) {
+    private boolean retryUntilMerged(String accountId, MergeableProcess process) {
+        Account account = accounts.get(accountId);
         while (true) {
             try {
-                return process.process();
+                return process.execute(account.copy());
             } catch (UnmergeableEventException e) {
+                accounts.refresh(account);
             }
         }
     }
 
     private interface MergeableProcess {
-        boolean process() throws UnmergeableEventException;
+        boolean execute(Account account) throws UnmergeableEventException;
     }
 }

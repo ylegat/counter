@@ -18,4 +18,8 @@ public class Accounts {
         return loadAccount(eventStore.get(accountId));
     }
 
+    public void refresh(Account account) {
+        account.applyEvents(eventStore.get(account.getAccountId(), account.getVersion() + 1));
+    }
+
 }

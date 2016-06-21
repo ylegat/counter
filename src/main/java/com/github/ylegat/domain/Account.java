@@ -40,11 +40,20 @@ public class Account {
 
     private long version;
 
-    private final Queue<Event> eventsToProcess = new LinkedList<>();
+    private final Queue<Event> eventsToProcess;
 
     private Account() {
         version = 0;
         reservedCredits = new HashMap<>();
+        eventsToProcess = new LinkedList<>();
+    }
+
+    public Account(String accountId, Map<String, Long> reservedCredits, long credit, long version, Queue<Event> eventsToProcess) {
+        this.accountId = accountId;
+        this.reservedCredits = reservedCredits;
+        this.credit = credit;
+        this.version = version;
+        this.eventsToProcess = eventsToProcess;
     }
 
     public void provisionCredit(long provisionedCredit) {
@@ -78,7 +87,7 @@ public class Account {
         eventsToProcess.offer(applyEvent(event));
     }
 
-    private void applyEvents(List<Event> events) {
+    public void applyEvents(List<Event> events) {
         events.stream().forEach(this::applyEvent);
     }
 
@@ -165,5 +174,9 @@ public class Account {
     long reservedCredit(String callId) {
         Long reservedCredit = reservedCredits.get(callId);
         return (reservedCredit == null) ? 0L : reservedCredit;
+    }
+
+    public Account copy() {
+        return new Account(accountId, new HashMap<>(reservedCredits), credit, version, new LinkedList<>(eventsToProcess));
     }
 }

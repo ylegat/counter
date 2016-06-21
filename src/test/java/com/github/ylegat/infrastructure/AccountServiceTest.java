@@ -11,7 +11,6 @@ import java.util.HashSet;
 import org.junit.Test;
 import com.github.ylegat.EventSerializer;
 import com.github.ylegat.domain.Account;
-import com.github.ylegat.domain.AccountService;
 import com.github.ylegat.domain.Accounts;
 import com.github.ylegat.domain.EventStore;
 import com.github.ylegat.domain.event.CreatedAccountEvent;
@@ -19,6 +18,7 @@ import com.github.ylegat.domain.event.Event;
 import com.github.ylegat.domain.event.ProvisionedCreditEvent;
 import com.github.ylegat.domain.event.ReservedCreditEvent;
 import com.github.ylegat.domain.event.TerminatedCallEvent;
+import com.github.ylegat.domain.service.AccountService;
 
 public class AccountServiceTest {
 
