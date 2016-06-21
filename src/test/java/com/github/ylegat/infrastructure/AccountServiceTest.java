@@ -11,6 +11,8 @@ import java.util.HashSet;
 import org.junit.Test;
 import com.github.ylegat.EventSerializer;
 import com.github.ylegat.domain.Account;
+import com.github.ylegat.domain.AccountService;
+import com.github.ylegat.domain.Accounts;
 import com.github.ylegat.domain.EventStore;
 import com.github.ylegat.domain.event.CreatedAccountEvent;
 import com.github.ylegat.domain.event.Event;
@@ -89,6 +91,6 @@ public class AccountServiceTest {
 
         EventSerializer eventSerializer = new EventSerializer(eventsMap);
         EventStore eventStore = new SQLEventStore(eventSerializer, conflictingEvents);
-        return new AccountService(new SQLAccountRepository(eventStore));
+        return new AccountService(new Accounts(eventStore));
     }
 }

@@ -2,9 +2,6 @@ package com.github.ylegat.domain;
 
 import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
-import com.github.ylegat.domain.Account;
-import com.github.ylegat.domain.Accounts;
-import com.github.ylegat.domain.UnmergeableEventException;
 
 public class AccountService {
 
@@ -31,22 +28,11 @@ public class AccountService {
     }
 
     public boolean reserveCredit(String accountId, String callId, long credit) {
-        while (true) {
-            try {
-                return tryReserveCredit(accountId, callId, credit);
-            } catch (UnmergeableEventException e) {
-            }
-        }
+        return retryUntilMerged(() -> tryReserveCredit(accountId, callId, credit));
     }
 
-    public void terminateCall(String accountId, String callId, long consumedCredit) {
-        while (true) {
-            try {
-                tryTerminateCall(accountId, callId, consumedCredit);
-                return;
-            } catch (UnmergeableEventException e) {
-            }
-        }
+    public boolean terminateCall(String accountId, String callId, long consumedCredit) {
+        return retryUntilMerged(() -> tryTerminateCall(accountId, callId, consumedCredit));
     }
 
     private boolean tryReserveCredit(String accountId, String callId, long credit) throws UnmergeableEventException {
@@ -59,9 +45,25 @@ public class AccountService {
         return true;
     }
 
-    private void tryTerminateCall(String accountId, String callId, long consumedCredit) throws UnmergeableEventException {
+    private boolean tryTerminateCall(String accountId,
+                                     String callId,
+                                     long consumedCredit) throws UnmergeableEventException {
         Account account = accounts.get(accountId);
         account.terminateCall(callId, consumedCredit);
         accounts.save(account);
+        return true;
+    }
+
+    private boolean     retryUntilMerged(MergeableProcess process) {
+        while (true) {
+            try {
+                return process.process();
+            } catch (UnmergeableEventException e) {
+            }
+        }
+    }
+
+    private interface MergeableProcess {
+        boolean process() throws UnmergeableEventException;
     }
 }

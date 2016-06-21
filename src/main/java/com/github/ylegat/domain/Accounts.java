@@ -1,9 +1,21 @@
 package com.github.ylegat.domain;
 
-public interface Accounts {
+import static com.github.ylegat.domain.Account.loadAccount;
 
-    void save(Account account) throws UnmergeableEventException;
+public class Accounts {
 
-    Account get(String accountId);
+    private final EventStore eventStore;
+
+    public Accounts(EventStore eventStore) {
+        this.eventStore = eventStore;
+    }
+
+    public void save(Account account) throws UnmergeableEventException {
+        eventStore.save(account.getAccountId(), account.consumeEvents());
+    }
+
+    public Account get(String accountId) {
+        return loadAccount(eventStore.get(accountId));
+    }
 
 }
