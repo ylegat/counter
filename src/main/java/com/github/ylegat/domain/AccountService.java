@@ -1,4 +1,4 @@
-package com.github.ylegat.infrastructure;
+package com.github.ylegat.domain;
 
 import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
