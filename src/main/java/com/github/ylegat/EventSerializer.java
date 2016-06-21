@@ -20,9 +20,7 @@ public class EventSerializer {
         return uncheck(() -> gson.toJson(event));
     }
 
-    public <T extends Event> T deserialize(String json) {
-        Properties properties = gson.fromJson(json, Properties.class);
-        String eventType = (String) properties.get("eventType");
+    public <T extends Event> T deserialize(String eventType, String json) {
         Class<? extends Event> eventClass = eventsMap.get(eventType);
         return deserialize(json, eventClass);
     }

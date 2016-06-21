@@ -42,6 +42,7 @@ public class SQLEventStore extends EventStore {
                                          "ID BIGINT PRIMARY KEY AUTO_INCREMENT," +
                                          "AGGREGATE_ID VARCHAR(64) NOT NULL," +
                                          "VERSION BIGINT NOT NULL," +
+                                         "EVENT_TYPE VARCHAR(64) NOT NULL," +
                                          "EVENT VARCHAR(256) NOT NULL)");
         connection.createStatement()
                   .executeUpdate("ALTER TABLE events ADD CONSTRAINT u_event UNIQUE(AGGREGATE_ID, VERSION)");
@@ -53,10 +54,11 @@ public class SQLEventStore extends EventStore {
     protected boolean save(Event event) {
         try {
             PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO EVENTS(AGGREGATE_ID, VERSION, EVENT) VALUES(?, ?, ?)");
+                    "INSERT INTO EVENTS(AGGREGATE_ID, VERSION, EVENT, EVENT_TYPE) VALUES(?, ?, ?, ?)");
             statement.setString(1, event.aggregateId);
             statement.setLong(2, event.version);
             statement.setString(3, eventSerializer.serialize(event));
+            statement.setString(4, event.eventType);
             statement.execute();
             return true;
         } catch (SQLException e) {
@@ -67,15 +69,16 @@ public class SQLEventStore extends EventStore {
     @Override
     public List<Event> get(String aggregateId, long fromVersion) {
         return uncheck(() -> {
-            PreparedStatement statement = connection.prepareStatement("SELECT EVENT FROM EVENTS WHERE AGGREGATE_ID = ? AND VERSION >= ?");
+            PreparedStatement statement = connection.prepareStatement("SELECT EVENT_TYPE, EVENT FROM EVENTS WHERE AGGREGATE_ID = ? AND VERSION >= ?");
             statement.setString(1, aggregateId);
             statement.setLong(2, fromVersion);
             ResultSet resultSet = statement.executeQuery();
 
             List<Event> events = new LinkedList<>();
             while (resultSet.next()) {
-                String data = resultSet.getString(1);
-                Event event = eventSerializer.deserialize(data);
+                String eventType = resultSet.getString(1);
+                String data = resultSet.getString(2);
+                Event event = eventSerializer.deserialize(eventType, data);
                 events.add(event);
             }
 
