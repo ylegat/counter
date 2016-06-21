@@ -87,6 +87,14 @@ public class SQLEventStoreTest {
         executorService.awaitTermination(1L, MINUTES);
         long end = System.currentTimeMillis();
         System.out.println("process duration:" + (end - start));
+
+        List<Event> events = loadEvents(eventStore);
+        int i = 0;
+        for (Event event : events) {
+            assertThat(event.version).isEqualTo(++i);
+        }
+        assertThat(events).hasSize(4000);
+
     }
 
     @Test
@@ -108,6 +116,13 @@ public class SQLEventStoreTest {
         executorService.awaitTermination(1L, MINUTES);
         long end = System.currentTimeMillis();
         System.out.println("process duration:" + (end - start));
+
+        List<Event> events = loadEvents(eventStore);
+        int i = 0;
+        for (Event event : events) {
+            assertThat(event.version).isEqualTo(++i);
+        }
+        assertThat(events).hasSize(4000);
     }
 
     private SQLEventStore eventStore() {

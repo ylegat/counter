@@ -18,7 +18,12 @@ public class SQLEventStore extends EventStore {
 
     private final EventSerializer eventSerializer;
 
-    private final Connection connection;
+    private final ThreadLocal<Connection> connectionSupplier = ThreadLocal.withInitial(() -> {
+        return uncheck(() -> {
+            Class.forName("org.h2.Driver");
+            return DriverManager.getConnection("jdbc:h2:./target/h2", "sa", "");
+        });
+    });
 
     public SQLEventStore(EventSerializer eventSerializer) {
         this(eventSerializer, emptySet());
@@ -27,11 +32,11 @@ public class SQLEventStore extends EventStore {
     public SQLEventStore(EventSerializer eventSerializer, Set<String> conflictingEvents) {
         super(conflictingEvents);
         this.eventSerializer = eventSerializer;
-        connection = uncheck(() -> {
-            Class.forName("org.h2.Driver");
-            Connection connection = DriverManager.getConnection("jdbc:h2:./target/h2", "sa", "");
-            return init(connection);
-        });
+        uncheck(() -> init(getConnection()));
+    }
+
+    private Connection getConnection() {
+        return connectionSupplier.get();
     }
 
     private Connection init(Connection connection) throws SQLException {
@@ -53,7 +58,7 @@ public class SQLEventStore extends EventStore {
     @Override
     protected boolean save(Event event) {
         try {
-            PreparedStatement statement = connection.prepareStatement(
+            PreparedStatement statement = getConnection().prepareStatement(
                     "INSERT INTO EVENTS(AGGREGATE_ID, VERSION, EVENT, EVENT_TYPE) VALUES(?, ?, ?, ?)");
             statement.setString(1, event.aggregateId);
             statement.setLong(2, event.version);
@@ -69,7 +74,7 @@ public class SQLEventStore extends EventStore {
     @Override
     public List<Event> get(String aggregateId, long fromVersion) {
         return uncheck(() -> {
-            PreparedStatement statement = connection.prepareStatement("SELECT EVENT_TYPE, EVENT FROM EVENTS WHERE AGGREGATE_ID = ? AND VERSION >= ?");
+            PreparedStatement statement = getConnection().prepareStatement("SELECT EVENT_TYPE, EVENT FROM EVENTS WHERE AGGREGATE_ID = ? AND VERSION >= ?");
             statement.setString(1, aggregateId);
             statement.setLong(2, fromVersion);
             ResultSet resultSet = statement.executeQuery();
@@ -88,9 +93,8 @@ public class SQLEventStore extends EventStore {
 
     @Override
     protected boolean commit() {
-        System.out.println("commit");
         try {
-            connection.commit();
+            getConnection().commit();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -100,7 +104,6 @@ public class SQLEventStore extends EventStore {
 
     @Override
     protected void rollback() {
-        System.out.println("cancel");
-        uncheck(() -> connection.rollback());
+        uncheck(() -> getConnection().rollback());
     }
 }
