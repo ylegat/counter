@@ -1,6 +1,6 @@
 package com.github.ylegat.domain;
 
-public interface AccountRepository {
+public interface Accounts {
 
     void save(Account account) throws UnmergeableEventException;
 

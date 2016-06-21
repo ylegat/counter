@@ -3,31 +3,31 @@ package com.github.ylegat.infrastructure;
 import static com.github.ylegat.domain.Account.createNewAccount;
 import static com.github.ylegat.uncheck.Uncheck.uncheck;
 import com.github.ylegat.domain.Account;
-import com.github.ylegat.domain.AccountRepository;
+import com.github.ylegat.domain.Accounts;
 import com.github.ylegat.domain.UnmergeableEventException;
 
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private Accounts accounts;
 
-    public AccountService(AccountRepository accountRepository) {
-        this.accountRepository = accountRepository;
+    public AccountService(Accounts accounts) {
+        this.accounts = accounts;
     }
 
     public Account getAccount(String accountId) {
-        return accountRepository.get(accountId);
+        return accounts.get(accountId);
     }
 
     public Account createAccount() {
         Account account = createNewAccount();
-        uncheck(() -> accountRepository.save(account));
+        uncheck(() -> accounts.save(account));
         return account;
     }
 
     public void provisionCredit(String accountId, long credit) {
-        Account account = accountRepository.get(accountId);
+        Account account = accounts.get(accountId);
         account.provisionCredit(credit);
-        uncheck(() -> accountRepository.save(account));
+        uncheck(() -> accounts.save(account));
     }
 
     public boolean reserveCredit(String accountId, String callId, long credit) {
@@ -50,18 +50,18 @@ public class AccountService {
     }
 
     private boolean tryReserveCredit(String accountId, String callId, long credit) throws UnmergeableEventException {
-        Account account = accountRepository.get(accountId);
+        Account account = accounts.get(accountId);
         if (!account.reserveCredit(callId, credit)) {
             return false;
         }
 
-        accountRepository.save(account);
+        accounts.save(account);
         return true;
     }
 
     private void tryTerminateCall(String accountId, String callId, long consumedCredit) throws UnmergeableEventException {
-        Account account = accountRepository.get(accountId);
+        Account account = accounts.get(accountId);
         account.terminateCall(callId, consumedCredit);
-        accountRepository.save(account);
+        accounts.save(account);
     }
 }

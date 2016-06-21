@@ -89,6 +89,6 @@ public class AccountServiceTest {
 
         EventSerializer eventSerializer = new EventSerializer(eventsMap);
         EventStore eventStore = new SQLEventStore(eventSerializer, conflictingEvents);
-        return new AccountService(new Accounts(eventStore));
+        return new AccountService(new SQLAccountRepository(eventStore));
     }
 }
